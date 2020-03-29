@@ -12,11 +12,13 @@ window.videoRTCController = new VideoRTCController();
 
 socket.on('connect', function(){
     $('.memeber-container').remove();
-    var userMedia = ( navigator.getUserMedia ||
+    var userMedia = (   navigator.getUserMedia ||
                         navigator.webkitGetUserMedia ||
+						navigator.mediaDevices ||
                         navigator.mozGetUserMedia ||
-                        navigator.msGetUserMedia);
-
+                        navigator.msGetUserMedia || 
+						navigator.mediaDevices.getUserMedia);
+    
     var getUserMedia = userMedia.bind(navigator);  
     getUserMedia({audio: true, video: true}, start, function() {alert('Error');});
 

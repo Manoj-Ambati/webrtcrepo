@@ -12,13 +12,12 @@ window.videoRTCController = new VideoRTCController();
 
 socket.on('connect', function(){
     $('.memeber-container').remove();
-    var userMedia = (   navigator.getUserMedia ||
+    var userMedia = ( navigator.getUserMedia ||
                         navigator.webkitGetUserMedia ||
-						navigator.mediaDevices ||
                         navigator.mozGetUserMedia ||
-                        navigator.msGetUserMedia || 
-						navigator.mediaDevices.getUserMedia);
-    
+                        navigator.msGetUserMedia 
+						);
+
     var getUserMedia = userMedia.bind(navigator);  
     getUserMedia({audio: true, video: true}, start, function() {alert('Error');});
 
@@ -85,6 +84,37 @@ function start(stream) {
             document.querySelector("#other-video").srcObject = screenShare;
         })
     });
+$('#record').click(function(){
+
+startrecord(5000);
+});
+let displayMediaOptions = {video: true, audio: true};
+
+var startrecord = ms => navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+  .then(stream => record(stream, ms)
+    .then(recording => {
+      stop(stream);
+      recordedvideo.src = recordedlink.href = URL.createObjectURL(new Blob(recording));
+      recordedlink.download = "recording.blob";
+      recordedlink.innerHTML = "Download blob";
+      log("Playing "+ recording[0].type +" recording:");
+    })
+    .catch(log).then(() => stop(stream)))
+  .catch(log);
+
+var record = (stream, ms) => {
+  var rec = new MediaRecorder(stream), data = [];
+  rec.ondataavailable = e => data.push(e.data);
+  rec.start();
+  log(rec.state + " for "+ (ms / 1000) +" seconds...");
+  var stopped = new Promise((r, e) => (rec.onstop = r, rec.onerror = e));
+  return Promise.all([stopped, wait(ms).then(() => rec.stop())])
+    .then(() => data);
+};
+
+var stop = stream => stream.getTracks().forEach(track => track.stop());
+var wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+var log = msg => $("#log")[0].innerHTML += "<br>" + msg;
 
     $('#field').keyup(function(e) {
         if (e.keyCode == 13 && $('#field').val().length > 0) {

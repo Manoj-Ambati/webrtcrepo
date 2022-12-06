@@ -4,7 +4,7 @@
     "description": "A simple video chat app (WebRTC)",
     "dependencies": {
         "socket.io": "~1.0.6",
-        "express": "~4.8.6",
+        "express": "~4.18.2",
         "jade": "*"
     },
     "author": "developer"
